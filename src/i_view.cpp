@@ -78,7 +78,7 @@ int GxView::BeginMacro() {
     return (Top) ?  Top->BeginMacro() : 1;
 }
 
-int GxView::GetContext() {
+int GxView::GetContext() const {
     return (Top) ? Top->GetContext() : CONTEXT_NONE;
 }
 
@@ -162,7 +162,7 @@ void GxView::Activate(int gotfocus) {
     GView::Activate(gotfocus);
 }
 
-void GxView::UpdateTitle(char *Title, char *STitle) {
+void GxView::UpdateTitle(const char *Title, char *STitle) {
     if (Parent && Parent->Active == this) {
         Parent->ConSetTitle(Title, STitle);
     }
@@ -181,6 +181,10 @@ int GxView::GetFile(const char *Prompt, unsigned int BufLen, char *Str, int Hist
         return DLGGetFile(this, Prompt, BufLen, Str, Flags);
     else
         return ReadStr(Prompt, BufLen, Str, CompletePath, SelectPathname, HistId);
+}
+
+int GxView::IsModelView() const {
+    return Top ? Top->IsModelView() : 0;
 }
 
 int GxView::ReadStr(const char *Prompt, unsigned int BufLen, char *Str, Completer Comp, int Select, int HistId) {

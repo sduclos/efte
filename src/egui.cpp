@@ -199,7 +199,7 @@ int EGUI::ExecMacro(GxView *view, int Macro) {
     return ErOK;
 }
 
-void EGUI::SetMsg(char *Msg) {
+void EGUI::SetMsg(const char *Msg) {
     char CharMap[128] = "";
 
     if (Msg == 0) {
@@ -213,7 +213,7 @@ void EGUI::SetMsg(char *Msg) {
         ActiveModel->Msg(S_INFO, CharMap);
 }
 
-void EGUI::SetOverrideMap(EKeyMap *aMap, char *ModeName) {
+void EGUI::SetOverrideMap(EKeyMap *aMap, const char *ModeName) {
     OverrideMap = aMap;
     if (aMap == 0)
         SetMsg(0);
@@ -631,7 +631,7 @@ int EGUI::FrameNew() {
     GxView *view;
     ExModelView *edit;
 
-    if (!multiFrame() && frames)
+    if (!MultiFrame() && frames)
         return 0;
 
     (void) new EFrame(ScreenSizeX, ScreenSizeY);
@@ -656,18 +656,18 @@ int EGUI::FrameClose(GxView *View) {
     assert(frames != 0);
     assert(View != 0);
 
-    if (!frames->isLastFrame()) {
-        deleteFrame(frames);
+    if (!frames->IsLastFrame()) {
+        DeleteFrame(frames);
     } else {
         if (ExitEditor(ActiveView) == 0)
             return 0;
-        deleteFrame(frames);
+        DeleteFrame(frames);
     }
     return 1;
 }
 
 int EGUI::FrameNext(GxView * /*View*/) {
-    if (!frames->isLastFrame()) {
+    if (!frames->IsLastFrame()) {
         frames->Next->Activate();
         return 1;
     }
@@ -675,14 +675,14 @@ int EGUI::FrameNext(GxView * /*View*/) {
 }
 
 int EGUI::FramePrev(GxView * /*View*/) {
-    if (!frames->isLastFrame()) {
+    if (!frames->IsLastFrame()) {
         frames->Prev->Activate();
         return 1;
     }
     return 0;
 }
 
-int EGUI::findDesktop(char *argv[]) {
+int EGUI::FindDesktop(char *argv[]) {
     /*
      *  Locates the desktop file depending on the load desktop mode flag:
      *  0:  Try the "current" directory, then the FTE .exe directory (PC) or
@@ -750,7 +750,7 @@ int EGUI::findDesktop(char *argv[]) {
 
 void EGUI::DoLoadDesktopOnEntry(int &/*argc*/, char **argv) {
     if (DesktopFileName[0] == 0)
-        findDesktop(argv);
+        FindDesktop(argv);
 
     if (DesktopFileName[0] != 0) {
         if (IsDirectory(DesktopFileName)) {

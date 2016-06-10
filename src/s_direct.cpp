@@ -22,10 +22,17 @@
 #include <windows.h>
 #endif
 
-FileInfo::FileInfo(char *Name, int Type, off_t Size, time_t MTime) {
+FileInfo::FileInfo(const char *Name, int Type, off_t Size, time_t MTime,
+                  const char *SymlinkTargetName) {
     name = new char[strlen(Name) + 1];
     if (name)
         strcpy(name, Name);
+    if (SymlinkTargetName != 0) {
+        symlinkTarget = new char[strlen(SymlinkTargetName) + 1];
+        strcpy(symlinkTarget, SymlinkTargetName);
+    } else {
+        symlinkTarget = 0;
+    }
     size = Size;
     type = Type;
     mtime = MTime;
@@ -33,6 +40,27 @@ FileInfo::FileInfo(char *Name, int Type, off_t Size, time_t MTime) {
 
 FileInfo::~FileInfo() {
     delete [] name;
+    delete [] symlinkTarget;
+}
+
+const char * FileInfo::Name() const {
+    return name;
+}
+
+const char * FileInfo::SymlinkTargetName() const {
+    return symlinkTarget;
+}
+
+off_t FileInfo::Size() const {
+    return size;
+}
+
+int FileInfo::Type() const {
+    return type;
+}
+
+time_t FileInfo::MTime() const {
+    return mtime;
 }
 
 FileFind::FileFind(const char *aDirectory, const char *aPattern, int aFlags) {
@@ -267,16 +295,27 @@ again:
     if (Flags & ffFAST) {
         *fi = new FileInfo(name, fiUNKNOWN, 0, 0);
     } else {
-        struct stat st;
+        struct stat st = { 0 };
+        char linktarget[MAXPATH] = "";
 
         if (!(Flags & ffFULLPATH)) // need it now
             JoinDirFile(fullpath, Directory, dent->d_name);
 
+#if defined(UNIX)
+        if (readlink(fullpath, linktarget, sizeof(linktarget)) == -1)
+            strcpy(linktarget, "");
+#endif
+
         if (Flags & ffLINK) {
             // if we are handling location of symbolic links, lstat cannot be used
             // instead use normal stat
-            if (stat(fullpath, &st) != 0 && 0)
-                goto again;
+            if (stat(fullpath, &st) != 0)
+                // possibly a broken link, let's try to get
+                // the correct mtime for it at least
+#if defined(UNIX) // must use lstat if available
+                lstat(fullpath, &st)
+#endif
+                    ;
         } else {
             if (
 #if defined(UNIX) // must use lstat if available
@@ -294,7 +333,9 @@ again:
         *fi = new FileInfo(name,
                            S_ISDIR(st.st_mode) ? fiDIRECTORY : fiFILE,
                            st.st_size,
-                           st.st_mtime);
+                           st.st_mtime,
+                           strlen(linktarget) > 0 ? linktarget : 0
+                          );
     }
     //printf("ok\n");
     return 0;

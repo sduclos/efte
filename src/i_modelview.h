@@ -26,7 +26,7 @@ public:
     virtual EEventMap *GetEventMap();
     virtual int ExecCommand(int Command, ExState &State);
 
-    virtual int GetContext();
+    virtual int GetContext() const;
     virtual int BeginMacro();
     virtual void HandleEvent(TEvent &Event);
     virtual void UpdateView();
@@ -35,9 +35,7 @@ public:
     virtual void RepaintStatus();
     virtual void Resize(int width, int height);
     virtual void WnSwitchBuffer(EModel *M);
-    virtual int IsModelView() {
-        return 1;
-    }
+    virtual int IsModelView() const;
 };
 
 #endif

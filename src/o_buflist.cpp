@@ -33,7 +33,7 @@ EEventMap *BufferView::GetEventMap() {
     return FindEventMap("BUFFERS");
 }
 
-int BufferView::GetContext() {
+int BufferView::GetContext() const {
     return CONTEXT_BUFFERS;
 }
 
@@ -43,7 +43,7 @@ void BufferView::DrawLine(PCell B, int Line, int Col, ChColor color, int Width) 
             MoveStr(B, 0, Width, BList[Line] + Col, color, Width);
 }
 
-char* BufferView::FormatLine(int Line) {
+char* BufferView::FormatLine(int Line) const {
     return strdup(BList[Line]);
 }
 
@@ -149,7 +149,7 @@ int BufferView::ExecCommand(int Command, ExState &State) {
         // Find next matching line
         if (SearchLen) {
             int i = Row + 1;
-            i = getMatchingLine(i == BCount ? 0 : i, 1);
+            i = GetMatchingLine(i == BCount ? 0 : i, 1);
             // Never returns -1 since something already found before call
             Row = SearchPos[SearchLen] = i;
         }
@@ -158,7 +158,7 @@ int BufferView::ExecCommand(int Command, ExState &State) {
         // Find prev matching line
         if (SearchLen) {
             int i = Row - 1;
-            i = getMatchingLine(i == -1 ? BCount - 1 : i, -1);
+            i = GetMatchingLine(i == -1 ? BCount - 1 : i, -1);
             // Never returns -1 since something already found before call
             Row = SearchPos[SearchLen] = i;
         }
@@ -197,7 +197,7 @@ void BufferView::HandleEvent(TEvent &Event) {
                 SearchPos[SearchLen] = Row;
                 SearchString[SearchLen] = Ch;
                 SearchString[++SearchLen] = 0;
-                int i = getMatchingLine(Row, 1);
+                int i = GetMatchingLine(Row, 1);
                 if (i == -1)
                     SearchString[--SearchLen] = 0;
                 else
@@ -217,7 +217,7 @@ void BufferView::HandleEvent(TEvent &Event) {
  * Direction should be 1 for ascending and -1 for descending.
  * Returns line found or -1 if none.
  */
-int BufferView::getMatchingLine(int start, int direction) {
+int BufferView::GetMatchingLine(int start, int direction) const {
     int i = start;
     do {
         // Find SearchString at any place in string for line i
@@ -249,11 +249,11 @@ void BufferView::CancelSearch() {
     Msg(S_INFO, "");
 }
 
-void BufferView::GetInfo(char *AInfo, int /*MaxLen*/) {
+void BufferView::GetInfo(char *AInfo, int /*MaxLen*/) const {
     sprintf(AInfo, "%2d %04d/%03d Buffers", ModelNo, Row + 1, Count);
 }
 
-void BufferView::GetTitle(char *ATitle, int MaxLen, char *ASTitle, int SMaxLen) {
+void BufferView::GetTitle(char *ATitle, int MaxLen, char *ASTitle, int SMaxLen) const {
     strncpy(ATitle, "Buffers", MaxLen);
     ATitle[MaxLen - 1] = 0;
     strncpy(ASTitle, "Buffers", SMaxLen);

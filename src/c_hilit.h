@@ -69,6 +69,10 @@ int Indent_SIMPLE(EBuffer *B, int Line, int PosCursor);
 #define HILIT_CLRD() \
     ((Color < COUNT_CLR) ? Colors[Color] : Color - COUNT_CLR)
 
+#ifndef X_MASK
+#define X_MASK 0xFF
+#endif
+
 #define ColorChar() \
     do {\
     BPos = C - Pos; \
@@ -78,7 +82,7 @@ int Indent_SIMPLE(EBuffer *B, int Line, int PosCursor);
     BPtr[0] = *p; \
     BPtr[1] = HILIT_CLRD(); \
     } \
-    if (StateMap) StateMap[i] = (hsState)(State & 0xFF); \
+    if (StateMap) StateMap[i] = (hsState)(State & X_MASK); \
     } while (0)
 
 // MoveChar(B, C - Pos, Width, *p, Color, 1);
@@ -236,8 +240,6 @@ SyntaxProc GetHilitProc(int id);
 
 int IsState(hsState *Buf, hsState State, int Len);
 int LookAt(EBuffer *B, int Row, unsigned int Pos, const char *What, hsState State, int NoWord = 1, int CaseInsensitive = 0);
-inline int LookAtNoCase(EBuffer *B, int Row, unsigned int Pos, const char *What, hsState State, int NoWord = 1) {
-    return LookAt(B, Row, Pos, What, State, NoWord, 1);
-}
+int LookAtNoCase(EBuffer *B, int Row, unsigned int Pos, const char *What, hsState State, int NoWord = 1);
 
 #endif /* __HILIT_H_ */

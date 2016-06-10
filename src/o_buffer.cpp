@@ -27,7 +27,7 @@ EViewPort *EBuffer::CreateViewPort(EView *V) {
         if (SvnDiffView)
             SvnDiffView->FindFileLines(this);
 
-        markIndex.retrieveForBuffer(this);
+        markIndex.RetrieveForBuffer(this);
 
         int r, c;
 
@@ -127,7 +127,7 @@ void EEditPort::RedrawAll() {
     ///    Redraw(0, 0, Cols, Rows);
 }
 
-int EBuffer::GetContext() {
+int EBuffer::GetContext() const {
     return CONTEXT_FILE;
 }
 
@@ -1159,7 +1159,7 @@ int EBuffer::PlaceGlobalBookmark(ExState &State) {
 
     if (State.GetStrParam(View, name, sizeof(name)) == 0)
         if (View->MView->Win->GetStr("Place Global Bookmark", sizeof(name), name, HIST_BOOKMARK) == 0) return 0;
-    if (markIndex.insert(name, this, P) == 0) {
+    if (markIndex.Insert(name, this, P) == 0) {
         Msg(S_ERROR, "Error placing global bookmark %s.", name);
     }
     return 1;
@@ -1169,9 +1169,9 @@ int EBuffer::PushGlobalBookmark() {
     EPoint P = CP;
 
     P.Row = VToR(P.Row);
-    EMark *m = markIndex.pushMark(this, P);
+    EMark *m = markIndex.PushMark(this, P);
     if (m)
-        Msg(S_INFO, "Placed bookmark %s", m->getName());
+        Msg(S_INFO, "Placed bookmark %s", m->GetName());
     return m ? 1 : 0;
 }
 
@@ -1244,7 +1244,7 @@ int EBuffer::FileReload(ExState &/*State*/) {
     return Reload();
 }
 
-int EBuffer::FileSaveAs(char *FName) {
+int EBuffer::FileSaveAs(const char *FName) {
     char Name[MAXPATH];
 
     if (ExpandPath(FName, Name, sizeof(Name)) == -1) {
@@ -1287,7 +1287,7 @@ int EBuffer::FileSaveAs(ExState &State) {
     return FileSaveAs(FName);
 }
 
-int EBuffer::FileWriteTo(char *FName) {
+int EBuffer::FileWriteTo(const char *FName) {
     char Name[MAXPATH];
 
     if (ExpandPath(FName, Name, sizeof(Name)) == -1) {
@@ -1618,7 +1618,7 @@ int EBuffer::ChangeLeftMargin(ExState &State) {
 }
 
 
-int EBuffer::CanQuit() {
+int EBuffer::CanQuit() const {
     if (Modified)
         return 0;
     else
@@ -1687,16 +1687,16 @@ int EBuffer::ConfQuit(GxView *V, int multiFile) {
     return 1;
 }
 
-void EBuffer::GetName(char *AName, int MaxLen) {
+void EBuffer::GetName(char *AName, int MaxLen) const {
     strncpy(AName, FileName, MaxLen);
     AName[MaxLen - 1] = 0;
 }
 
-void EBuffer::GetPath(char *APath, int MaxLen) {
+void EBuffer::GetPath(char *APath, int MaxLen) const {
     JustDirectory(FileName, APath, MaxLen);
 }
 
-void EBuffer::GetInfo(char *AInfo, int /*MaxLen*/) {
+void EBuffer::GetInfo(char *AInfo, int /*MaxLen*/) const {
     char buf[256] = {0};
     char winTitle[256] = {0};
 
@@ -1719,7 +1719,7 @@ void EBuffer::GetInfo(char *AInfo, int /*MaxLen*/) {
             winTitle);
 }
 
-void EBuffer::GetTitle(char *ATitle, int MaxLen, char *ASTitle, int SMaxLen) {
+void EBuffer::GetTitle(char *ATitle, int MaxLen, char *ASTitle, int SMaxLen) const {
     char *p;
 
     strncpy(ATitle, FileName, MaxLen - 1);

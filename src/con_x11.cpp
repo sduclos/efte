@@ -37,6 +37,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <X11/XF86keysym.h>
 #include <X11/Xos.h>
 #ifdef USE_XTINIT
 #include <X11/Intrinsic.h>
@@ -414,7 +415,7 @@ static int InitXFonts(void) {
 }
 
 static int SetupXWindow(int argc, char **argv) {
-    unsigned long mask;
+    unsigned long mask = 0;
 
 #ifdef WINHCLX
     HCLXlibInit(); /* HCL - Initialize the X DLL */
@@ -682,7 +683,7 @@ int ConClear(void) {
     return ConPutLine(0, 0, ScreenCols, ScreenRows, B);
 }
 
-int ConSetTitle(char *Title, char *STitle) {
+int ConSetTitle(const char *Title, char *STitle) {
     char buf[sizeof(winTitle)] = {0};
 
     JustFileName(Title, buf, sizeof(buf));
@@ -1085,6 +1086,8 @@ static struct {
     { XK_End,            kbEnd },
     { XK_Down,           kbDown },
     { XK_Next,           kbPgDn },
+    { XF86XK_Back,       kbLeft | kfAlt },
+    { XF86XK_Forward,    kbRight | kfAlt },
     { XK_Select,         kbEnd },
     { XK_KP_Enter,       kbEnter | kfGray },
     { XK_Insert,         kbIns | kfGray },
@@ -2143,7 +2146,10 @@ int GUI::OpenPipe(char *Command, EModel *notify) {
                 signal(SIGPIPE, SIG_DFL);
                 close(pfd[0]);
                 close(0);
-                assert(open("/dev/null", O_RDONLY) == 0);
+                {
+                    int handle = open("/dev/null", O_RDONLY);
+                    assert(handle == 0);
+                }
                 dup2(pfd[1], 1);
                 dup2(pfd[1], 2);
                 close(pfd[1]);

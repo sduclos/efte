@@ -24,7 +24,7 @@ ExModelView::~ExModelView() {
     }
 }
 
-int ExModelView::GetContext() {
+int ExModelView::GetContext() const {
     return View->GetContext();
 }
 
@@ -73,4 +73,8 @@ void ExModelView::Resize(int width, int height) {
 void ExModelView::WnSwitchBuffer(EModel *B) {
     if (View)
         View->SwitchToModel(B);
+}
+
+int ExModelView::IsModelView() const {
+    return 1;
 }

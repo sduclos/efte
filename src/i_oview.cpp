@@ -19,7 +19,12 @@ ExView::~ExView() {
 void ExView::Activate(int /*gotfocus*/) {
 }
 
-int ExView::IsActive() {
+int ExView::GetContext() const
+{
+    return CONTEXT_NONE;
+}
+
+int ExView::IsActive() const {
     if (Win)
         return Win->IsActive();
     return 0;
@@ -107,4 +112,12 @@ int ExView::ConHideCursor() {
 void ExView::ConSetInsertState(bool insert) {
     if (Win)
         Win->ConSetInsertState(insert);
+}
+
+int ExView::IsModelView() const {
+    return 0;
+}
+
+void ExView::WnSwitchBuffer(EModel *M) {
+    Next->WnSwitchBuffer(M);
 }

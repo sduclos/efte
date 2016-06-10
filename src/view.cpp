@@ -48,7 +48,7 @@ EView::~EView() {
         delete Port;
 }
 
-int EView::CanQuit() {
+int EView::CanQuit() const {
     if (Model)
         return Model->CanQuit();
     else
@@ -129,7 +129,7 @@ void EView::Activate(int GotFocus) {
     }
 }
 
-int EView::GetContext() {
+int EView::GetContext() const {
     return Model ? Model->GetContext() : 0;
 }
 
@@ -546,7 +546,7 @@ int EView::DirOpen(ExState &State) {
     return OpenDir(Path);
 }
 
-int EView::OpenDir(char *Path) {
+int EView::OpenDir(const char *Path) {
     char XPath[MAXPATH];
     EDirectory *dir = 0;
 
@@ -619,7 +619,7 @@ int EView::RunCompiler(ExState &State) {
     return Compile(Command);
 }
 
-int EView::Compile(char *Command) {
+int EView::Compile(const char *Command) {
     char Dir[MAXPATH] = "";
     EMessages *msgs;
 
@@ -750,7 +750,7 @@ int EView::RemoveGlobalBookmark(ExState &State) {
 
     if (State.GetStrParam(this, name, sizeof(name)) == 0)
         if (MView->Win->GetStr("Remove Global Bookmark", sizeof(name), name, HIST_BOOKMARK) == 0) return 0;
-    if (markIndex.remove(name) == 0) {
+    if (markIndex.Remove(name) == 0) {
         Msg(S_ERROR, "Error removing global bookmark %s.", name);
         return 0;
     }
@@ -762,14 +762,14 @@ int EView::GotoGlobalBookmark(ExState &State) {
 
     if (State.GetStrParam(this, name, sizeof(name)) == 0)
         if (MView->Win->GetStr("Goto Global Bookmark", sizeof(name), name, HIST_BOOKMARK) == 0) return 0;
-    if (markIndex.view(this, name) == 0) {
+    if (markIndex.View(this, name) == 0) {
         Msg(S_ERROR, "Error locating global bookmark %s.", name);
         return 0;
     }
     return 1;
 }
 int EView::PopGlobalBookmark() {
-    if (markIndex.popMark(this) == 0) {
+    if (markIndex.PopMark(this) == 0) {
         Msg(S_INFO, "Bookmark stack empty.");
         return 0;
     }
@@ -818,7 +818,7 @@ int EView::RunCvs(ExState &State) {
     return Cvs(Options);
 }
 
-int EView::Cvs(char *Options) {
+int EView::Cvs(const char *Options) {
     char Dir[MAXPATH] = "";
     char Command[256] = "";
     char buf[1024] = "";
@@ -910,7 +910,7 @@ int EView::RunCvsDiff(ExState &State) {
     return CvsDiff(Options);
 }
 
-int EView::CvsDiff(char *Options) {
+int EView::CvsDiff(const char *Options) {
     char Dir[MAXPATH] = "";
     char Command[256] = "";
     char buf[1024] = "";
@@ -988,7 +988,7 @@ int EView::RunCvsCommit(ExState &State) {
     return CvsCommit(Options);
 }
 
-int EView::CvsCommit(char *Options) {
+int EView::CvsCommit(const char *Options) {
     char Dir[MAXPATH] = "";
     char Command[256] = "";
     char buf[1024] = "";
@@ -1063,7 +1063,7 @@ int EView::RunSvn(ExState &State) {
     return Svn(Options);
 }
 
-int EView::Svn(char *Options) {
+int EView::Svn(const char *Options) {
     char Dir[MAXPATH] = "";
     char Command[256] = "";
     char buf[1024] = "";
@@ -1155,7 +1155,7 @@ int EView::RunSvnDiff(ExState &State) {
     return SvnDiff(Options);
 }
 
-int EView::SvnDiff(char *Options) {
+int EView::SvnDiff(const char *Options) {
     char Dir[MAXPATH] = "";
     char Command[256] = "";
     char buf[1024] = "";
@@ -1233,7 +1233,7 @@ int EView::RunSvnCommit(ExState &State) {
     return SvnCommit(Options);
 }
 
-int EView::SvnCommit(char *Options) {
+int EView::SvnCommit(const char *Options) {
     char Dir[MAXPATH] = "";
     char Command[256] = "";
     char buf[1024] = "";

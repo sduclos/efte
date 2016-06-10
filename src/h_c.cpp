@@ -16,19 +16,6 @@
 
 #define ISNAME(x)  (isalnum(x) || (x == '_'))
 
-
-#define hsC_Normal       0
-#define hsC_Comment      1
-#define hsC_CommentL     2
-#define hsC_Keyword      4
-#define hsC_String1     10
-#define hsC_String2     11
-#define hsC_CPP         12
-#define hsC_CPP_Comm    13
-#define hsC_CPP_String1 14
-#define hsC_CPP_String2 15
-#define hsC_CPP_ABrace  16
-
 int Hilit_C(EBuffer *BF, int /*LN*/, PCell B, int Pos, int Width, ELine *Line, hlState &State, hsState *StateMap, int *ECol) {
     int j = 0;
     int firstnw = 0;
@@ -98,7 +85,7 @@ int Hilit_C(EBuffer *BF, int /*LN*/, PCell B, int Pos, int Width, ELine *Line, h
                     // check if it is not floating point number 0.08!
                     if ((len >= 2) && ((*p == '0') && p[1] != '.' &&
                     // only numbers longer than 1 digit be hex/octal
-                                       isdigit(p[1]) || toupper(p[1]) == 'X'))
+                                       (isdigit(p[1]) || toupper(p[1]) == 'X')))
                     {
                         if (toupper(*(p + 1)) == 'X') {
                             Color = CLR_HexNumber;
@@ -368,6 +355,10 @@ int LookAt(EBuffer *B, int Row, unsigned int Pos, const char *What, hsState Stat
         if (IsState(StateMap + Pos, State, strlen(What))) ENDFUNCRC(1);
     }
     ENDFUNCRC(0);
+}
+
+int LookAtNoCase(EBuffer *B, int Row, unsigned int Pos, const char *What, hsState State, int NoWord) {
+    return LookAt(B, Row, Pos, What, State, NoWord, 1);
 }
 
 int C_Indent = 4;

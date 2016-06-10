@@ -172,7 +172,7 @@ public:
     GFramePeer(GFrame *aFrame, int Width, int Height);
     ~GFramePeer();
 
-    int ConSetTitle(char *Title, char *STitle);
+    int ConSetTitle(const char *Title, char *STitle);
     int ConGetTitle(char *Title, int MaxLen, char *STitle, int SMaxLen);
 
     int ConSetSize(int X, int Y);
@@ -1686,7 +1686,10 @@ MRESULT EXPENTRY AVIOWndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
         ptr = (PMPTR *)mp1;
         pmData = ptr ? (PMData *)ptr->p : 0;
         assert(pmData != 0);
-        assert(WinSetWindowULong(hwnd, QWL_USER, (ULONG)pmData) == TRUE);
+        {
+            BOOL s = WinSetWindowULong(hwnd, QWL_USER, (ULONG)pmData);
+            assert(s == TRUE);
+        }
 
         hdc = WinOpenWindowDC(hwnd);
         VioCreatePS(&pmData->hvps, MAXYSIZE, MAXXSIZE, 0, 1, 0);
@@ -1913,7 +1916,10 @@ MRESULT EXPENTRY ObjectWndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2) {
     case WM_CREATE:
         PMPTR *ptr = (PMPTR *)mp1;
         GViewPeer *peer = ptr ? (GViewPeer *)ptr->p : 0;
-        assert(WinSetWindowULong(hwnd, QWL_USER, (ULONG)peer) == TRUE);
+        {
+            BOOL s = WinSetWindowULong(hwnd, QWL_USER, (ULONG)peer);
+            assert(s == TRUE);
+        }
         break;
     }
     return WinDefWindowProc(hwnd, msg, mp1, mp2);
@@ -2939,7 +2945,7 @@ int GView::Execute() {
     return NewResult;
 }
 
-int GView::IsActive() {
+int GView::IsActive() const {
     return (Parent->Active == this && Parent == frames);
 }
 
@@ -3015,7 +3021,7 @@ int GFramePeer::ConQuerySize(int *X, int *Y) {
     return 1;
 }
 
-int GFramePeer::ConSetTitle(char *Title, char *STitle) {
+int GFramePeer::ConSetTitle(const char *Title, char *STitle) {
     char szTitle[256] = {0};
 
     JustFileName(Title, szTitle, sizeof(szTitle));
@@ -3182,7 +3188,7 @@ GFrame::~GFrame() {
     Next = Prev = 0;
 }
 
-int GFrame::ConSetTitle(char *Title, char *STitle) {
+int GFrame::ConSetTitle(const char *Title, char *STitle) {
     return Peer->ConSetTitle(Title, STitle);
 }
 
@@ -3451,7 +3457,8 @@ GUI::GUI(int &argc, char **argv, int XSize, int YSize) {
     fArgv = argv;
     hab = WinInitialize(0);
     hmq = WinCreateMsgQueue(hab, 0);
-    assert(0 == DosCreateMutexSem(0, &hmtxPMData, 0, 0));
+    APIRET s = DosCreateMutexSem(0, &hmtxPMData, 0, 0);
+    assert(0 == s);
 
     cxBorder = WinQuerySysValue(HWND_DESKTOP, SV_CXSIZEBORDER);
     cyBorder = WinQuerySysValue(HWND_DESKTOP, SV_CYSIZEBORDER);
@@ -3479,8 +3486,10 @@ GUI::GUI(int &argc, char **argv, int XSize, int YSize) {
                                       HWND_DESKTOP, HWND_TOP,
                                       0, NULL, NULL);
 
-    assert(0 == DosCreateEventSem(0, &WorkerStarted, 0, 0));
-    assert(0 == DosCreateEventSem(0, &StartInterface, 0, 0));
+    APIRET ws = DosCreateEventSem(0, &WorkerStarted, 0, 0);
+    APIRET si = DosCreateEventSem(0, &StartInterface, 0, 0);
+    assert(0 == ws);
+    assert(0 == si);
 
     _beginthread(WorkThread, FAKE_BEGINTHREAD_NULL PM_STACK_SIZE, 0);
 
@@ -3949,7 +3958,7 @@ int GUI::ClosePipe(int id) {
     return Pipes[id].RetCode;
 }
 
-int GUI::multiFrame() {
+int GUI::MultiFrame() {
     return 1;
 }
 
